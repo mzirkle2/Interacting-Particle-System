@@ -1,1 +1,1 @@
-# Interactive-Particles
+# Interacting-Particle-System
