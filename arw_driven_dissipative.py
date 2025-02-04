@@ -72,9 +72,9 @@ def runRound(arr, addIndex, lenArr, rate):
 
 
 if __name__ == "__main__":
-    arr = setUp(100)
+    arr = setUp(1000)
     avgDens = []
-    for i in range(100):
+    for i in range(10000):
         avgDens.append(runRound(arr, 50, len(arr), 0.5))
 
 
@@ -83,10 +83,11 @@ if __name__ == "__main__":
     plt.ylim(0.6, 0.9)
     plt.xlabel("Number of Rounds (Trials)")
     plt.ylabel(f"Average Density (# of Particles / Length of Array ({len(arr)}))")
-    plt.title("Average Particle Density of Driven-Dissipative ARW Model")
+    plt.suptitle("Particle Density of Driven-Dissipative ARW Model")
+    plt.title(f"Average density: {np.round(np.mean(np.array(avgDens), axis = 0), 3)}", size = 10)
     plt.legend(["Density per Round", "Average After All Rounds"], loc="lower right")
     plt.show()
-    print(f"Average (of all averages) density: {np.mean(np.array(avgDens), axis = 0)}")
+    print(f"Average density: {np.mean(np.array(avgDens), axis = 0)}")
 
 
 
