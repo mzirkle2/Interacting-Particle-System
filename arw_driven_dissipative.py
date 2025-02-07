@@ -86,6 +86,7 @@ if __name__ == "__main__":
         numTopples.append(topples)
 
 
+    plt.figure(1)
     plt.plot(np.array(range(len(avgDens))), np.array(avgDens))
     plt.plot(np.array(range(len(avgDens))), np.array(np.repeat(np.mean(np.array(avgDens), axis = 0), len(avgDens))), color = "hotpink")
     plt.ylim(0.6, 0.9)
@@ -96,6 +97,7 @@ if __name__ == "__main__":
     plt.legend(["Density per Round", "Average After All Rounds"], loc="lower right")
     plt.savefig(f"Plots/Average_density_{ntrials}_trials_{nparticles}_particles.png")
 
+    plt.figure(2)
     plt.plot(np.array(range(len(numTopples))), np.array(numTopples))
     plt.xlabel("Number of Rounds (Trials)")
     plt.ylabel(f"Number of Topples to Stabilization ({len(arr)}))")
