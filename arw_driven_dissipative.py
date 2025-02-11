@@ -70,37 +70,84 @@ def runRound(arr, addIndex, lenArr, rate):
     return (numPar / lenArr), numTopples
 
 
-
-if __name__ == "__main__":
-    ntrials = 100
-    nparticles = 100
-    lambda_rate = 0.5
-    
-    arr = setUp(nparticles)
+## will run a specified number of rounds, where each round sees 1 active particle
+## added, and will stabilize until all are asleep before repeating with another active particle
+## and so on
+## params
+    ## nParticles - the length of starting array, where the very first round sees every index filled with exactly
+                    ## one active particle
+    ## nTrials - the number of times a single active particle is added after stabilization
+    ## lambda_rate - the rate at which particles fall asleep
+## returns
+    ## avgDens - a list of densities at the end of each round of stabilization
+    ## numTopples - a list of the number of instructions used in a round of stabilization
+def runNTrials(nParticles = 100, nTrials = 100, lambda_rate = 0.5):
+    arr = setUp(nParticles)
 
     avgDens = []
     numTopples = []
-    for i in range(ntrials):
+
+    for i in range(nTrials):
         density, topples = runRound(arr, int(len(arr) / 2), len(arr), lambda_rate)
         avgDens.append(density)
         numTopples.append(topples)
 
 
+    return avgDens, numTopples
+
+
+def sampleVar(nList):
+    listParticles = []
+    for n in nList:
+        avgDens, numTopples = runNTrials(n, 1000)
+        listParticles.append([i * n for i in avgDens]) ## one entry in list is list of number of particles at end of each stabilization round
+
+    listParticles = np.var(listParticles, axis = 1) ## final list has one entry as variance of the list of number of particles at end of each stablization round
+    return listParticles
+    
+
+if __name__ == "__main__":
+    ntrials = 100
+    nparticles = 100
+    lambda_rate = 0.5
+    nList = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+    
+    avgDens, numTopples = runNTrials(nparticles, ntrials, lambda_rate)
+    listvar = sampleVar(nList)
+
+    print(listvar)
+
     plt.figure(1)
+    plt.plot(np.array(nList), np.array(listvar))
+    plt.xlabel("Number of Starting Particles")
+    plt.ylabel(f"Variance of Number of Particles")
+    plt.suptitle(f"Variance of Number of Particles after Stabilization vs Starting Number of Particles")
+    plt.title("1000 rounds of stabilization", size = 10)
+    plt.savefig("Plots/Variance_of_particles.png")
+
+    plt.figure(2)
+    plt.plot(np.array(nList), np.array(np.log(listvar)))
+    plt.xlabel("Number of Starting Particles")
+    plt.ylabel(f"Log(Variance) of Number of Particles")
+    plt.suptitle(f"Log(Variance) of Number of Particles after Stabilization vs Starting Number of Particles")
+    plt.title("1000 rounds of stabiliztion", size = 10)
+    plt.savefig("Plots/log_variance_of_particles.png")
+
+    plt.figure(3)
     plt.plot(np.array(range(len(avgDens))), np.array(avgDens))
     plt.plot(np.array(range(len(avgDens))), np.array(np.repeat(np.mean(np.array(avgDens), axis = 0), len(avgDens))), color = "hotpink")
     plt.ylim(0.6, 0.9)
     plt.xlabel("Number of Rounds (Trials)")
-    plt.ylabel(f"Average Density (# of Particles / Length of Array ({len(arr)}))")
+    plt.ylabel(f"Average Density (# of Particles / Length of Array ({nparticles}))")
     plt.suptitle("Particle Density of Driven-Dissipative ARW Model")
     plt.title(f"Average density: {np.round(np.mean(np.array(avgDens), axis = 0), 3)}", size = 10)
     plt.legend(["Density per Round", "Average After All Rounds"], loc="lower right")
     plt.savefig(f"Plots/Average_density_{ntrials}_trials_{nparticles}_particles.png")
 
-    plt.figure(2)
+    plt.figure(4)
     plt.plot(np.array(range(len(numTopples))), np.array(numTopples))
     plt.xlabel("Number of Rounds (Trials)")
-    plt.ylabel(f"Number of Topples to Stabilization ({len(arr)}))")
+    plt.ylabel(f"Number of Topples to Stabilization ({nparticles}))")
     plt.title("Number of Topples to Stabilization of Driven-Dissipative ARW Model")
     plt.savefig(f"Plots/Number_of_Topples_{ntrials}_trials_{nparticles}_particles.png")
     print(f"Average density: {np.mean(np.array(avgDens), axis = 0)}")
