@@ -1,9 +1,9 @@
-### Interacting-Particle-System
+# Interacting-Particle-System
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# defining object to hold data for each index
+### defining object to hold data for each index
 # welcome to change - just ease of access/understanding rn
 # default index object is awake with one particle
 class index:
