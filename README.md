@@ -3,9 +3,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-### defining object to hold data for each index
-# welcome to change - just ease of access/understanding rn
-# default index object is awake with one particle
+##### defining object to hold data for each index
+##### welcome to change - just ease of access/understanding rn
+##### default index object is awake with one particle
 class index:
     def __init__(self, state = "A", numPar = 1):
         self.state = state
@@ -15,8 +15,8 @@ class index:
         return f"State: {self.state}, numPar = {self.numPar}"
 
 
-# creates an array of length n
-# with one particle at each index (already awake)
+##### creates an array of length n
+##### with one particle at each index (already awake)
 def setUp(n: int):
     arr = []
     for i in range(n):
@@ -72,15 +72,15 @@ def runRound(arr, addIndex, lenArr, rate):
     return (numPar / lenArr), numTopples
 
 
-# will run a specified number of rounds, where each round sees 1 active particle
-# added, and will stabilize until all are asleep before repeating with another active particle
-# and so on
-## params
+##### will run a specified number of rounds, where each round sees 1 active particle
+##### added, and will stabilize until all are asleep before repeating with another active particle
+##### and so on
+##### params
     # nParticles - the length of starting array, where the very first round sees every index filled with exactly
                     # one active particle
     # nTrials - the number of times a single active particle is added after stabilization
     # lambda_rate - the rate at which particles fall asleep
-## returns
+##### returns
     # avgDens - a list of densities at the end of each round of stabilization
     # numTopples - a list of the number of instructions used in a round of stabilization
 def runNTrials(nParticles = 100, nTrials = 100, lambda_rate = 0.5):
