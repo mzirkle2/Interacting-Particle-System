@@ -1,0 +1,95 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.patches as mpatches
+
+#class and setUp from arw_driven_dissipative
+
+class index:
+    def __init__(self, state = "A", numPar = 1):
+        self.state = state
+        self.numPar = numPar
+
+    def __str__(self):
+        return f"State: {self.state}, numPar = {self.numPar}"
+
+
+def setUp(n: int):
+    arr = []
+    for i in range(n):
+        arr.append(index())
+
+    return arr
+
+#runs a single round of stabilization using the same code from the main file
+
+def animation_trial(arr, addIndex, lenArr, rate):
+    frames = []
+    topple = True
+    instr = np.random.choice(np.arange(-1, 2), size=100*lenArr, p=[(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
+
+    arr[addIndex].numPar += 1
+    arr[addIndex].state = "A"
+    frames.append([(obj.numPar, obj.state) for obj in arr])  # Track numPar and state
+
+    while topple:
+        roundTopples = 0
+        for i in range(lenArr):
+            currIndex = arr[i]
+            if currIndex.state == "A" and currIndex.numPar > 0:
+                if len(instr) < 1:
+                    instr = np.random.choice(np.arange(-1,2), size=100*lenArr, p=[(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
+                currInstr = instr.pop()
+
+                if currInstr == 0 and currIndex.numPar == 1:
+                    currIndex.state = "S"
+                elif currInstr in [-1, 1]:
+                    currIndex.numPar -= 1
+                    currIndex.state = "S" if currIndex.numPar < 1 else "A"
+                    if 0 <= (i + currInstr) < lenArr:
+                        arr[i + currInstr].numPar += 1
+                        arr[i + currInstr].state = "A"
+
+                roundTopples += 1
+
+        frames.append([(obj.numPar, obj.state) for obj in arr])  # Track state at each frame
+        topple = True if roundTopples > 0 else False
+
+    return frames
+
+#create the animation
+def animate_stabilization(n=100, lambda_rate=0.5):
+    arr = setUp(n)
+    frames = animation_trial(arr, n // 2, n, lambda_rate)
+
+    fig, ax = plt.subplots()
+    ax.set_ylim(0, max(max(num for num, _ in frame) for frame in frames) + 1) #ensure the animation isn't hard coded
+    ax.set_xlim(0, n)
+    ax.set_xlabel("Index")
+    ax.set_ylabel("Number of Particles")
+    ax.set_title("Stabilization Process (First Round)")
+
+    bars = ax.bar(range(n), [num for num, _ in frames[0]], color='blue')
+
+    red_patch = mpatches.Patch(color='red', label='Active Particles (A)')
+    blue_patch = mpatches.Patch(color='blue', label='Asleep Particles (S)')
+    ax.legend(handles=[red_patch, blue_patch], loc='upper right')
+
+    def update(frame_idx):
+        frame = frames[frame_idx]
+        for i, (bar, (height, state)) in enumerate(zip(bars, frame)):
+            bar.set_height(height)
+            bar.set_color('red' if state == "A" else 'blue')
+
+        # stop the animation when all particles are asleep
+        if all(state == "S" for _, state in frame):
+            ani.event_source.stop()
+
+        return bars
+
+    ani = animation.FuncAnimation(fig, update, frames=len(frames), interval=100, blit=False)
+    plt.show()
+
+
+# Run the animation
+animate_stabilization(n=100, lambda_rate=0.5)
