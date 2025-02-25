@@ -99,10 +99,16 @@ def runNTrials(nParticles = 100, nTrials = 100, lambda_rate = 0.5):
 def sampleVar(nList):
     listParticles = []
     for n in nList:
-        avgDens, numTopples = runNTrials(n, 1000)
-        listParticles.append([i * n for i in avgDens]) ## one entry in list is list of number of particles at end of each stabilization round
+        nVar = []
+        for j in range(100):
+            avgDens, _ = runNTrials(n, 1000)
+            nVar.append([i * n for i in avgDens]) ## one entry in list is list of number of particles at end of each stabilization round
+    
+        listParticles.append(nVar)
 
-    listParticles = np.var(listParticles, axis = 1) ## final list has one entry as variance of the list of number of particles at end of each stablization round
+
+    listParticles = [[np.var(items) for items in nNum] for nNum in listParticles]
+    listParticles = [np.mean(x) for x in listParticles]
     return listParticles
     
 
@@ -110,9 +116,10 @@ if __name__ == "__main__":
     ntrials = 100
     nparticles = 100
     lambda_rate = 0.5
-    nList = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+    #nList = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+    nList = [1, 2, 4, 8, 16, 32, 64, 128, 150, 200, 256, 300]
     
-    avgDens, numTopples = runNTrials(nparticles, ntrials, lambda_rate)
+    #avgDens, numTopples = runNTrials(nparticles, ntrials, lambda_rate)
     listvar = sampleVar(nList)
 
     print(listvar)
@@ -133,24 +140,24 @@ if __name__ == "__main__":
     plt.title("1000 rounds of stabiliztion", size = 10)
     plt.savefig("Plots/log_variance_of_particles.png")
 
-    plt.figure(3)
-    plt.plot(np.array(range(len(avgDens))), np.array(avgDens))
-    plt.plot(np.array(range(len(avgDens))), np.array(np.repeat(np.mean(np.array(avgDens), axis = 0), len(avgDens))), color = "hotpink")
-    plt.ylim(0.6, 0.9)
-    plt.xlabel("Number of Rounds (Trials)")
-    plt.ylabel(f"Average Density (# of Particles / Length of Array ({nparticles}))")
-    plt.suptitle("Particle Density of Driven-Dissipative ARW Model")
-    plt.title(f"Average density: {np.round(np.mean(np.array(avgDens), axis = 0), 3)}", size = 10)
-    plt.legend(["Density per Round", "Average After All Rounds"], loc="lower right")
-    plt.savefig(f"Plots/Average_density_{ntrials}_trials_{nparticles}_particles.png")
+    # plt.figure(3)
+    # plt.plot(np.array(range(len(avgDens))), np.array(avgDens))
+    # plt.plot(np.array(range(len(avgDens))), np.array(np.repeat(np.mean(np.array(avgDens), axis = 0), len(avgDens))), color = "hotpink")
+    # plt.ylim(0.6, 0.9)
+    # plt.xlabel("Number of Rounds (Trials)")
+    # plt.ylabel(f"Average Density (# of Particles / Length of Array ({nparticles}))")
+    # plt.suptitle("Particle Density of Driven-Dissipative ARW Model")
+    # plt.title(f"Average density: {np.round(np.mean(np.array(avgDens), axis = 0), 3)}", size = 10)
+    # plt.legend(["Density per Round", "Average After All Rounds"], loc="lower right")
+    # plt.savefig(f"Plots/Average_density_{ntrials}_trials_{nparticles}_particles.png")
 
-    plt.figure(4)
-    plt.plot(np.array(range(len(numTopples))), np.array(numTopples))
-    plt.xlabel("Number of Rounds (Trials)")
-    plt.ylabel(f"Number of Topples to Stabilization ({nparticles}))")
-    plt.title("Number of Topples to Stabilization of Driven-Dissipative ARW Model")
-    plt.savefig(f"Plots/Number_of_Topples_{ntrials}_trials_{nparticles}_particles.png")
-    print(f"Average density: {np.mean(np.array(avgDens), axis = 0)}")
+    # plt.figure(4)
+    # plt.plot(np.array(range(len(numTopples))), np.array(numTopples))
+    # plt.xlabel("Number of Rounds (Trials)")
+    # plt.ylabel(f"Number of Topples to Stabilization ({nparticles}))")
+    # plt.title("Number of Topples to Stabilization of Driven-Dissipative ARW Model")
+    # plt.savefig(f"Plots/Number_of_Topples_{ntrials}_trials_{nparticles}_particles.png")
+    # print(f"Average density: {np.mean(np.array(avgDens), axis = 0)}")
 
 
 
