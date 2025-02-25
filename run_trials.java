@@ -23,7 +23,7 @@ public class run_trials{
                 long time = endTime - startTime;
                 roundTimes.add(time);
             }
-            System.out.println(roundTimes);
+            //System.out.println(roundTimes);
             long avgTime = calculateAverage(roundTimes);
             times.add(avgTime);
         }
@@ -33,7 +33,7 @@ public class run_trials{
     public static void main(String[] args){
         //runBasicTrial(100, 100, 0.5);
 
-        List<Integer> nPar_Try = new ArrayList<>(Arrays.asList(5, 5, 2, 4, 8, 10));
+        List<Integer> nPar_Try = new ArrayList<>(Arrays.asList(1, 2, 4, 8, 10));
         List<Long> times = timeTrials(nPar_Try, 10, 0.5);
         System.out.println(times);
     }

@@ -2,6 +2,7 @@ import java.util.*;
 
 public class arw_DD {
     public List<List<Double>> runNTrials(int nParticles, int nTrials, double lambda_rate){
+        Random r = new Random();
         List<index> arr = setUp(nParticles);
         List<Double> avgDens = new ArrayList<>();
         List<Double> numTopples = new ArrayList<>();
@@ -9,7 +10,7 @@ public class arw_DD {
         List<Integer> probs = generateDistribution(lambda_rate);
 
         for (int i = 0; i < nTrials; i++){
-            returnTwo pair = runRound(arr, (arr.size() / 2), arr.size(), probs);
+            returnTwo pair = runRound(arr, (arr.size() / 2), arr.size(), probs, r);
             avgDens.add(pair.getDens());
             numTopples.add((double) pair.getTopples());
         }
@@ -30,11 +31,11 @@ public class arw_DD {
         return arr;
     }
 
-    private returnTwo runRound(List<index> arr, int addIndex, int lenArr, List<Integer> probs){
+    private returnTwo runRound(List<index> arr, int addIndex, int lenArr, List<Integer> probs, Random r){
         boolean topple = true;
         int numTopples = 0;
 
-        List<Integer> instr = getInstr(probs, 100*arr.size());
+        List<Integer> instr = getInstr(probs, 100*arr.size(), r);
         arr.get(addIndex).editParticle(1);
         arr.get(addIndex).editState("A");
 
@@ -44,15 +45,16 @@ public class arw_DD {
                 index currIndex = arr.get(i);
                 if(currIndex.getState().equals("A") && currIndex.getParticle() > 0){
                     if(instr.size() < 1){
-                        instr = getInstr(probs, 100*arr.size());
+                        instr = getInstr(probs, 100*arr.size(), r);
                     }
 
                     int currInstr = instr.remove(instr.size() - 1);
+                    roundTopples += 1;
 
                     if(currInstr == 0 & currIndex.getParticle() == 1){
                         currIndex.editState("S");
                         numTopples += 1;
-                        roundTopples += 1;
+                        //roundTopples += 1;
                     } else if(currInstr == -1 || currInstr == 1){
                         currIndex.editParticle(-1);
 
@@ -68,7 +70,7 @@ public class arw_DD {
                         }
 
                         numTopples += 1;
-                        roundTopples += 1;
+                        //roundTopples += 1;
                     }
                 }
 
@@ -76,11 +78,12 @@ public class arw_DD {
             }
         }
 
+
         int numPar = 0;
         for(int i = 0; i < arr.size(); i++){
             numPar += arr.get(i).getParticle();
         }
-        System.out.println("Average Density: " + ((numPar * 1.0) / arr.size()));
+        System.out.println("Average Density: " + ((double) (numPar) / arr.size()));
         returnTwo returnVal = new returnTwo(((numPar * 1.0) / arr.size()), numTopples);
         return returnVal;
     }
@@ -103,8 +106,7 @@ public class arw_DD {
         return possNum;
     }
 
-    private List<Integer> getInstr(List<Integer> probs, int n){
-        Random r = new Random();
+    private List<Integer> getInstr(List<Integer> probs, int n, Random r){
         List<Integer> instr = new ArrayList<>(n);
         for(int i = 0; i < n; i++){
             instr.add(i, probs.get(r.nextInt(probs.size())));
