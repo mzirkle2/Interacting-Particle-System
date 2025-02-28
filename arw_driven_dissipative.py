@@ -27,7 +27,7 @@ def runRound(arr, addIndex, lenArr, rate):
     numTopples = 0
     
     ## generate batch of instructions for speed
-    instr = np.random.choice(np.arange(-1,2), size = 100*lenArr, p = [(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
+    instr = np.random.choice(np.arange(-1,2), size = 100*lenArr, p = [(1)/(2+rate), (rate)/(2+rate), (1)/(2+rate)]).tolist()
 
     ## add 1 particle to de-stabilize, and set index to active
     arr[addIndex].numPar += 1
