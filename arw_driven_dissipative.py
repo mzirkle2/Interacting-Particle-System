@@ -42,12 +42,13 @@ def runRound(arr, addIndex, lenArr, rate):
                     instr = np.random.choice(np.arange(-1,2), size = 100*lenArr, p = [(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
                 
                 currInstr = instr.pop() ## generate instruction for current index
-
+                roundTopples += 1
+                numTopples += 1
 
                 if currInstr == 0 and currIndex.numPar == 1:
                     currIndex.state = "S"
-                    numTopples += 1
-                    roundTopples += 1
+                    #numTopples += 1
+                    #roundTopples += 1
                 elif currInstr == -1 or currInstr == 1: ## left or right
                     currIndex.numPar -= 1
                     currIndex.state = "S" if currIndex.numPar < 1 else "A"
@@ -57,8 +58,8 @@ def runRound(arr, addIndex, lenArr, rate):
                         arr[i + currInstr].numPar += 1
                         arr[i + currInstr].state = "A"
                         
-                    numTopples += 1
-                    roundTopples += 1
+                    #numTopples += 1
+                    #roundTopples += 1
 
             topple = True if roundTopples > 0 else False ## topple is false if no indices needed to be stabilized
 
@@ -89,6 +90,7 @@ def runNTrials(nParticles = 100, nTrials = 100, lambda_rate = 0.5):
 
     for i in range(nTrials):
         density, topples = runRound(arr, int(len(arr) / 2), len(arr), lambda_rate)
+        #print([str(index) for index in arr])
         avgDens.append(density)
         numTopples.append(topples)
 
@@ -115,30 +117,30 @@ def sampleVar(nList):
 if __name__ == "__main__":
     ntrials = 100
     nparticles = 100
-    lambda_rate = 0.5
+    lambda_rate = 10
     #nList = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
     nList = [1, 2, 4, 8, 16, 32, 64, 128, 150, 200, 256, 300]
     
-    #avgDens, numTopples = runNTrials(nparticles, ntrials, lambda_rate)
-    listvar = sampleVar(nList)
+    avgDens, numTopples = runNTrials(nparticles, ntrials, lambda_rate)
+    #listvar = sampleVar(nList)
 
-    print(listvar)
+    # print(listvar)
 
-    plt.figure(1)
-    plt.plot(np.array(nList), np.array(listvar))
-    plt.xlabel("Number of Starting Particles")
-    plt.ylabel(f"Variance of Number of Particles")
-    plt.suptitle(f"Variance of Number of Particles after Stabilization vs Starting Number of Particles")
-    plt.title("1000 rounds of stabilization", size = 10)
-    plt.savefig("Plots/Variance_of_particles.png")
+    # plt.figure(1)
+    # plt.plot(np.array(nList), np.array(listvar))
+    # plt.xlabel("Number of Starting Particles")
+    # plt.ylabel(f"Variance of Number of Particles")
+    # plt.suptitle(f"Variance of Number of Particles after Stabilization vs Starting Number of Particles")
+    # plt.title("1000 rounds of stabilization", size = 10)
+    # plt.savefig("Plots/Variance_of_particles.png")
 
-    plt.figure(2)
-    plt.plot(np.array(nList), np.array(np.log(listvar)))
-    plt.xlabel("Number of Starting Particles")
-    plt.ylabel(f"Log(Variance) of Number of Particles")
-    plt.suptitle(f"Log(Variance) of Number of Particles after Stabilization vs Starting Number of Particles")
-    plt.title("1000 rounds of stabiliztion", size = 10)
-    plt.savefig("Plots/log_variance_of_particles.png")
+    # plt.figure(2)
+    # plt.plot(np.array(nList), np.array(np.log(listvar)))
+    # plt.xlabel("Number of Starting Particles")
+    # plt.ylabel(f"Log(Variance) of Number of Particles")
+    # plt.suptitle(f"Log(Variance) of Number of Particles after Stabilization vs Starting Number of Particles")
+    # plt.title("1000 rounds of stabiliztion", size = 10)
+    # plt.savefig("Plots/log_variance_of_particles.png")
 
     # plt.figure(3)
     # plt.plot(np.array(range(len(avgDens))), np.array(avgDens))
