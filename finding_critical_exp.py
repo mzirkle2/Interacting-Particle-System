@@ -60,8 +60,8 @@ def stabilize(arr, lenArr, addIndex, rate):
     instr = np.random.choice(np.arange(-1, 2), size = 100*lenArr)
 
     ## add 1 particle to de-stabilize, and set index to active
-    arr[addIndex][1] += 1
-    arr[addIndex][0] = 1
+    arr[addIndex][1] += 1 ## add one to the number of particles
+    arr[addIndex][0] = 1 ## change state to be awake
 
     while topple:
         roundTopples = 0
@@ -118,7 +118,7 @@ def simulate_sandpile(L, num_avalanches, equilibrate, lambda_rate):
     # All sites start with 1 grain
     arr = []
     for i in range(L):
-        particle = []
+        particle = [] ## first value in list is state, second is number of particles
         particle.append(1) ## awake = 1, sleep = 0
         particle.append(1)
         arr.append(particle)
