@@ -140,7 +140,7 @@ def plot_L_moment_spectra(data_dict, obs, q_values, num_avalanches_total, rate):
     ax.set_xlabel("q")
     ax.set_ylabel(r"$\sigma(q)$")
     ax.set_title(f"L Moment Spectrum for '{obs}'")
-    # Annotate with avalanche count
+    # Annotate with avalanche count, lamda, beta, and tau
     ax.text(0.05, 0.95, f"N = {num_avalanches_total}", transform=ax.transAxes,
             fontsize=12, verticalalignment='top', color='black')
     ax.text(0.05, 0.90, f"Lambda = {rate}", transform=ax.transAxes,
@@ -203,8 +203,10 @@ def data_collapse_plot(data_dict, obs, beta, tau, label, num_avalanches_total):
     ax.set_xlabel(r"$x / L^{\beta}$")
     ax.set_ylabel(r"$P(x)\, L^{\beta \tau}$")
     ax.set_title(f"Data Collapse: {label}  (β:{beta}, τ:{tau})")
-    # Annotate with avalanche count
+    # Annotate with avalanche count and lambda
     ax.text(0.05, 0.95, f"N = {num_avalanches_total}", transform=ax.transAxes,
+            fontsize=12, verticalalignment='top', color='black')
+    ax.text(0.05, 0.90, f"lambda = {rate}", transform=ax.transAxes,
             fontsize=12, verticalalignment='top', color='black')
     ax.legend()
     plt.tight_layout()
@@ -222,7 +224,7 @@ def main():
       data[size] = dict(s=topples, a=aval_size, t=duration)
     for obs_label, title in zip(['s','a','t'], ["Size s", "Area a", "Duration t"]):
       beta, tau = plot_L_moment_spectra(data, obs_label, np.linspace(0.0, 2.0, 21), trials, rate)
-      data_collapse_plot(data, obs_label, beta, tau, title, trials)
+      data_collapse_plot(data, obs_label, beta, tau, title, trials, rate)
     
 if __name__ == "__main__":
     main()
