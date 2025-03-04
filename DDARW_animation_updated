@@ -1,0 +1,169 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.patches as mpatches
+
+
+class index:
+    def __init__(self, state="A", numPar=1):
+        self.state = state
+        self.numPar = numPar
+        self.instr_count = 0  # Track instructions executed
+
+    def __str__(self):
+        return f"State: {self.state}, numPar = {self.numPar}, instr_count = {self.instr_count}"
+
+
+def setUp(n: int):
+    return [index(state="A", numPar=1) for _ in range(n)]
+
+
+# fluid animation trial
+def animation_trial(arr, addIndex, lenArr, rate):
+    frames = []
+    instr_counts = [0] * lenArr  # Track instruction count per site
+    topple = True
+    instr = np.random.choice(np.arange(-1, 2), size=100*lenArr, p=[(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
+
+    arr[addIndex].numPar += 1  # Ensure additional particle is added at center
+    frames.append(([(obj.numPar, obj.state) for obj in arr], instr_counts.copy()))
+
+    while topple:
+        roundTopples = 0
+        for i in range(lenArr):
+            currIndex = arr[i]
+            if currIndex.state == "A" and currIndex.numPar > 0:
+                if len(instr) < 1:
+                    instr = np.random.choice(np.arange(-1,2), size=100*lenArr, p=[(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
+                currInstr = instr.pop()
+
+                instr_counts[i] += 1  # Increment instruction count
+
+                if currInstr == 0 and currIndex.numPar == 1:
+                    currIndex.state = "S"
+                elif currInstr in [-1, 1]:
+                    currIndex.numPar -= 1
+                    currIndex.state = "S" if currIndex.numPar < 1 else "A"
+                    if 0 <= (i + currInstr) < lenArr:
+                        arr[i + currInstr].numPar += 1
+                        arr[i + currInstr].state = "A"
+
+                roundTopples += 1
+
+        frames.append(([(obj.numPar, obj.state) for obj in arr], instr_counts.copy()))
+        topple = True if roundTopples > 0 else False
+
+    return frames
+
+
+# One by one animation trial
+
+"""def animation_trial(arr, addIndex, lenArr, rate):
+    frames = []
+    instr_counts = [0] * lenArr  # Track instruction count per site
+    topple = True
+    instr = np.random.choice(np.arange(-1, 2), size=100*lenArr, p=[(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
+
+    arr[addIndex].numPar += 1  # Ensure additional particle is added at center
+    frames.append(([(obj.numPar, obj.state) for obj in arr], instr_counts.copy()))
+
+    while topple:
+        roundTopples = 0
+        for i in range(lenArr):
+            currIndex = arr[i]
+            if currIndex.state == "A" and currIndex.numPar > 0:
+                if len(instr) < 1:
+                    instr = np.random.choice(np.arange(-1,2), size=100*lenArr, p=[(1)/(2*(1+rate)), (rate)/(1+rate), (1)/(2*(1+rate))]).tolist()
+                currInstr = instr.pop()
+
+                instr_counts[i] += 1  # Increment instruction count
+
+                if currInstr == 0 and currIndex.numPar == 1:
+                    currIndex.state = "S"
+                elif currInstr in [-1, 1]:
+                    currIndex.numPar -= 1
+                    currIndex.state = "S" if currIndex.numPar < 1 else "A"
+                    if 0 <= (i + currInstr) < lenArr:
+                        arr[i + currInstr].numPar += 1
+                        arr[i + currInstr].state = "A"
+
+                roundTopples += 1
+                frames.append(([(obj.numPar, obj.state) for obj in arr], instr_counts.copy()))  # Capture each toppling
+
+        topple = True if roundTopples > 0 else False
+
+    return frames"""
+
+
+def animate_stabilization(n, lambda_rate):
+    arr = setUp(n)
+    frames = animation_trial(arr, n // 2, n, lambda_rate)
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+    
+    ax1.set_ylim(0, max(max(num for num, _ in frame) for frame, _ in frames) + 1)
+    ax1.set_xlim(0, n)
+    ax1.set_xlabel("Index")
+    ax1.set_ylabel("Number of Particles")
+    ax1.set_title("First Round of Stabilization for Lambda = " + str(lambda_rate))
+    
+    ax2.set_xlim(0, n)
+    ax2.set_ylim(0, 10)  # Adjust dynamically later if needed
+    ax2.set_xlabel("Index")
+    ax2.set_ylabel("Instruction Count")
+    ax2.set_title("Instruction Usage at Each Site")
+    
+    bars1 = ax1.bar(range(n), [num for num, _ in frames[0][0]], color='blue')
+    bars2 = ax2.bar(range(n), frames[0][1], color='darkslateblue')
+    
+    gold_patch = mpatches.Patch(color='goldenrod', label='Active Particles (A)')
+    purp_patch = mpatches.Patch(color='purple', label='Asleep Particles (S)')
+    green_patch = mpatches.Patch(color='darkslateblue', label='Instruction Count')
+    ax1.legend(handles=[gold_patch, purp_patch], loc='upper right')
+    ax2.legend(handles=[green_patch], loc='upper right')
+    
+    def update(frame_idx):
+        frame, instr_counts = frames[frame_idx]
+        
+        for bar, (height, state) in zip(bars1, frame):
+            bar.set_height(height)
+            bar.set_color('goldenrod' if state == "A" else 'purple')
+        
+        for bar, count in zip(bars2, instr_counts):
+            bar.set_height(count)
+        
+        ax2.set_ylim(0, max(instr_counts) + 50)
+        
+        if all(state == "S" for _, state in frame):
+            ani.event_source.stop()
+            show_summary(lambda_rate, instr_counts, frame)
+        
+        return bars1 + bars2
+    
+    def show_summary(lambda_rate, instr_counts, final_frame):
+        max_instr = max(instr_counts)
+        max_instr_index = instr_counts.index(max_instr)
+        total_instr = sum(instr_counts)
+        total_particles = sum(num for num, _ in final_frame)
+        
+        fig_summary, ax_summary = plt.subplots(figsize=(6, 4))
+        ax_summary.axis("off")
+        summary_text = (f"-- Simulation Summary --\n"
+                        f"────────────────────────\n"
+                        f"• Lambda Rate: {lambda_rate}\n"
+                        f"• Max Instructions: {max_instr} (Site {max_instr_index})\n"
+                        f"• Total Instructions: {total_instr}\n"
+                        f"• Particles Left: {total_particles}")
+
+        ax_summary.text(0.5, 0.5, summary_text, fontsize=12, ha='center', va='center',
+                        fontfamily='Arial', fontweight='bold', color='#333333',
+                        bbox=dict(boxstyle='round,pad=0.5', facecolor='#f0f0f0',
+                                  edgecolor='#aaaaaa', linewidth=1.5, alpha=0.9))
+        plt.show()
+
+    ani = animation.FuncAnimation(fig, update, frames=len(frames), interval=100, blit=False)
+    plt.tight_layout()
+    plt.show()
+
+
+animate_stabilization(n=100, lambda_rate=1)
