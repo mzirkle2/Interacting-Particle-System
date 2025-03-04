@@ -42,11 +42,11 @@ def runRound(part_arr, state_arr, addIndex, lenArr, directions):
                 currInstr = directions[int(instr[instr_in]*len(directions))] ## get instruction to move particle
                 instr_in += 1
                 toppled_flag[i] = True ## Record if a site was toppled
+                numTopples += 1
+                roundTopples += 1
 
                 if currInstr == 0 and part_arr[i] == 1: ## Site falls asleep
-                    state_arr[i] = False
-                    numTopples += 1
-                    roundTopples += 1
+                    state_arr[i] = False 
                 elif currInstr == -1 or currInstr == 1: ## particle moves left or right
                     part_arr[i] -= 1
                     state_arr[i] = False if part_arr[i] < 1 else True
@@ -54,9 +54,6 @@ def runRound(part_arr, state_arr, addIndex, lenArr, directions):
                     if (i + currInstr) < (lenArr) and (i + currInstr) >= 0:
                         part_arr[i + currInstr] += 1
                         state_arr[i + currInstr] = True
-
-                    numTopples += 1
-                    roundTopples += 1
 
             topple = True if roundTopples > 0 else False ## topple is false if no indices needed to be stabilized
 
