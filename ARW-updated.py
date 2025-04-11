@@ -92,6 +92,8 @@ def runNTrials(nParticles = 128, nTrials = 1000, lambda_rate = 0.5):
     directions[0] = -1
     directions[1] = 1
 
+    thowaway, ditch, pointless = runRound(part_arr, state_arr, fut_state_arr, int(len(part_arr) / 2), len(part_arr), directions)
+
 
     for i in range(nTrials):
         #density,
